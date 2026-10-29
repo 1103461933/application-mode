@@ -1,0 +1,30 @@
+apiVersion: lab.example/v1
+kind: FlinkReferenceJobs
+spec:
+  metadata:
+    domain: bridge
+    tenant: bridge-2l
+  flinkVersion: "2.2.0"
+  parallelism: 1
+  checkpointIntervalMs: 30000
+  jobs:
+    - name: equipment-agregate
+      enabled: true
+      inputTopic: "2l.bridge.equipment"
+      outputCollection: equipment
+    - name: ssr-agregate
+      enabled: true
+      inputTopic: "2l.bridge.ssr"
+      outputCollection: ssr
+    - name: fare-agregate
+      enabled: true
+      inputTopic: "2l.bridge.fare"
+      outputCollection: fare
+  kafka:
+    bootstrapServers: "REPLACE_ME_KAFKA_BOOTSTRAP"
+  couchbase:
+    connectionString: "REPLACE_ME_COUCHBASE_ENDPOINT"
+    usernameSecretEnv: "COUCHBASE_USERNAME"
+    passwordSecretEnv: "COUCHBASE_PASSWORD"
+    bucket: "flight-reservations"
+    scope: "reservations"

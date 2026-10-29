@@ -1,0 +1,34 @@
+# Starter template only. Verify Flink 2.2.0 image, command and security settings.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-session-jobmanager
+  namespace: session-mode-bridge-2l
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink-session
+      component: jobmanager
+  template:
+    metadata:
+      labels:
+        app: flink-session
+        component: jobmanager
+    spec:
+      containers:
+        - name: jobmanager
+          image: REPLACE_ME_REGISTRY/flink-session:2.2.0
+          args: ["jobmanager"]
+          ports:
+            - containerPort: 8081
+          env:
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: flink-session-jobmanager
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi

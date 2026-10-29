@@ -1,0 +1,42 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-application-taskmanager
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.taskManager.replicas }}
+  selector:
+    matchLabels:
+      app: flink-application
+      component: taskmanager
+  template:
+    metadata:
+      labels:
+        app: flink-application
+        component: taskmanager
+    spec:
+      containers:
+        - name: taskmanager
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args: ["taskmanager"]
+          env:
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: flink-application-jobmanager
+            - name: COUCHBASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.couchbase.secretName }}
+                  key: {{ .Values.couchbase.usernameSecretKey }}
+            - name: COUCHBASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.couchbase.secretName }}
+                  key: {{ .Values.couchbase.passwordSecretKey }}
+          resources:
+            requests:
+              cpu: {{ .Values.taskManager.cpuRequest | quote }}
+              memory: {{ .Values.taskManager.memoryRequest | quote }}
+            limits:
+              cpu: {{ .Values.taskManager.cpuLimit | quote }}
+              memory: {{ .Values.taskManager.memoryLimit | quote }}
+

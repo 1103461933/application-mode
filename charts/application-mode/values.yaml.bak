@@ -1,0 +1,17 @@
+image:
+  repository: REPLACE_ME_REGISTRY/flink-reference-jobs
+  tag: "2.2.0-dev"
+flinkVersion: "2.2.0"
+namespace: application-mode
+jobManager:
+  replicas: 1
+  cpuRequest: 500m
+  memoryRequest: 1Gi
+  cpuLimit: "2"
+  memoryLimit: 4Gi
+taskManager:
+  replicas: 2
+  cpuRequest: 500m
+  memoryRequest: 1Gi
+  cpuLimit: "2"
+  memoryLimit: 4Gi

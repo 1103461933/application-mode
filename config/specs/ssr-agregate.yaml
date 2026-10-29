@@ -1,0 +1,9 @@
+job:
+  name: ssr-agregate
+  aggregateKey: "{tenant}:ssr:{ssrCode}"
+  inputSchema:
+    required: [eventId, tenant, ssrCode]
+    optional: [description, categories, active]
+  privacy:
+    passengerOrBookingReference: forbidden
+  outputFields: [aggregateId, ssrCode, description, categories, active]

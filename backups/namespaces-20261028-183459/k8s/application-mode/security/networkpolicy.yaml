@@ -1,0 +1,12 @@
+# Deny-all baseline. Add reviewed allow rules before deployment; this blocks DNS
+# and all external dependencies until egress rules are explicitly added.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: application-mode
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

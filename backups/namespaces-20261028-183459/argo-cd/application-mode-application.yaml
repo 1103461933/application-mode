@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flink-application-mode
+  namespace: argocd
+spec:
+  project: flink-mode-migration
+  source:
+    repoURL: REPLACE_ME_GIT_REPOSITORY_URL
+    targetRevision: main
+    path: charts/flink-lab
+    helm:
+      valueFiles:
+        - values-application.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  # Enable automated sync only after migration approval.
+  syncPolicy: {}

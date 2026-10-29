@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: product-management-bridge-2l
+  labels:
+    app.kubernetes.io/part-of: flink-domain-tenant-lab
+    business-domain: product-management
+    tenant: bridge-2l

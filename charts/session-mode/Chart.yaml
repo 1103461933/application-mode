@@ -1,0 +1,6 @@
+apiVersion: v2
+name: session-mode
+description: Flink Session Mode cluster and job submission configuration
+type: application
+version: 0.1.0
+appVersion: "2.2.0"

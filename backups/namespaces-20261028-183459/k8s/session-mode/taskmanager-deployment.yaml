@@ -1,0 +1,32 @@
+# Starter template only. Set replicas/resources after measuring workload.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-session-taskmanager
+  namespace: session-mode
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flink-session
+      component: taskmanager
+  template:
+    metadata:
+      labels:
+        app: flink-session
+        component: taskmanager
+    spec:
+      containers:
+        - name: taskmanager
+          image: REPLACE_ME_REGISTRY/flink-session:2.2.0
+          args: ["taskmanager"]
+          env:
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: flink-session-jobmanager
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi

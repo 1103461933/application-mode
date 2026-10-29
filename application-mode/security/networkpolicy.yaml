@@ -1,0 +1,9 @@
+# Baseline deny-all. Add explicit allow rules after verifying required traffic and CNI support.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: product-management-bridge-2l
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]

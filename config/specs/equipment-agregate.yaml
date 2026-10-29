@@ -1,0 +1,7 @@
+job:
+  name: equipment-agregate
+  aggregateKey: "{tenant}:equipment:{aircraftType}"
+  inputSchema:
+    required: [eventId, tenant, aircraftType]
+    nested: compartments[].units[]
+  outputFields: [aggregateId, aircraftType, compartments, compartmentCount, unitCount]

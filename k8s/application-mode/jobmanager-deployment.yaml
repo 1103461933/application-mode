@@ -1,0 +1,33 @@
+# Application Mode entrypoint must be validated against the chosen Flink 2.2.0 image.
+# This is a deployment template, not a runnable final manifest.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-application-jobmanager
+  namespace: application-mode-bridge-2l
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink-application
+      component: jobmanager
+  template:
+    metadata:
+      labels:
+        app: flink-application
+        component: jobmanager
+    spec:
+      serviceAccountName: flink-application
+      containers:
+        - name: jobmanager
+          image: REPLACE_ME_REGISTRY/flink-reference-jobs:2.2.0-dev
+          args: ["REPLACE_ME_WITH_VERIFIED_APPLICATION_MODE_COMMAND"]
+          ports:
+            - containerPort: 8081
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi

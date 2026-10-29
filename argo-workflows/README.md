@@ -1,0 +1,1 @@
+The WorkflowTemplate is a starter example, not a complete CI/CD pipeline: it currently assumes the repository is mounted or otherwise available in the workflow pod. Connect the existing Git checkout/build mechanism and RBAC before running it. The namespace `argo` is a placeholder for your existing Argo Workflows installation; verify it first.

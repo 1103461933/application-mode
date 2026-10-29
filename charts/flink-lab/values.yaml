@@ -1,0 +1,72 @@
+# Safe default: deploy Session Mode first. Application Mode stays disabled until migration approval.
+sessionMode:
+  enabled: true
+  image:
+    repository: REPLACE_ME_REGISTRY/flink-session
+    tag: "2.2.0-dev"
+  flinkVersion: "2.2.0"
+  namespace: session-mode-bridge-2l
+  jobManager:
+    replicas: 1
+    cpuRequest: 250m
+    memoryRequest: 512Mi
+    cpuLimit: "1"
+    memoryLimit: 2Gi
+  taskManager:
+    replicas: 2
+    cpuRequest: 250m
+    memoryRequest: 512Mi
+    cpuLimit: "1"
+    memoryLimit: 2Gi
+  jobs:
+    equipmentAgregate:
+      enabled: true
+      specFile: equipment-agregate.yaml
+    ssrAgregate:
+      enabled: true
+      specFile: ssr-agregate.yaml
+    fareAgregate:
+      enabled: true
+      specFile: fare-agregate.yaml
+
+applicationMode:
+  enabled: false
+  image:
+    repository: REPLACE_ME_REGISTRY/flink-reference-jobs
+    tag: "2.2.0-dev"
+  flinkVersion: "2.2.0"
+  namespace: application-mode-bridge-2l
+  jobManager:
+    replicas: 1
+    cpuRequest: 500m
+    memoryRequest: 1Gi
+    cpuLimit: "2"
+    memoryLimit: 4Gi
+  taskManager:
+    replicas: 2
+    cpuRequest: 500m
+    memoryRequest: 1Gi
+    cpuLimit: "2"
+    memoryLimit: 4Gi
+  jobs:
+    equipmentAgregate:
+      enabled: true
+      specFile: equipment-agregate.yaml
+    ssrAgregate:
+      enabled: true
+      specFile: ssr-agregate.yaml
+    fareAgregate:
+      enabled: true
+      specFile: fare-agregate.yaml
+
+global:
+  flinkVersion: "2.2.0"
+  kafka:
+    bootstrapServers: REPLACE_ME_KAFKA_BOOTSTRAP
+  couchbase:
+    connectionString: REPLACE_ME_COUCHBASE_ENDPOINT
+    bucket: REPLACE_ME_BUCKET
+    scope: REPLACE_ME_SCOPE
+  state:
+    checkpointBasePath: REPLACE_ME_CHECKPOINT_PATH
+    savepointBasePath: REPLACE_ME_SAVEPOINT_PATH

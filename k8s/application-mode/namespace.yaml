@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: Namespace
+metadata:
+  name: application-mode-bridge-2l
+  labels:
+    app.kubernetes.io/part-of: flink-mode-migration-lab
+    flink-mode: application
+    business-domain: bridge
+    tenant: bridge-2l

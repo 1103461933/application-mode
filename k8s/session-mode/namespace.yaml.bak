@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: session-mode
+  labels:
+    app.kubernetes.io/part-of: flink-mode-migration-lab
+    flink-mode: session

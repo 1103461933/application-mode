@@ -1,0 +1,6 @@
+apiVersion: v2
+name: application-mode
+description: Dedicated Flink Application Mode workload for a domain/tenant
+type: application
+version: 0.1.0
+appVersion: "2.2.0"

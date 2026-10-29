@@ -1,0 +1,4 @@
+# Versions should be pinned to the tested deployment matrix before production.
+apache-flink==2.2.0
+couchbase==4.3.0
+PyYAML==6.0.2

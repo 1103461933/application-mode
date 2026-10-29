@@ -1,0 +1,25 @@
+﻿apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: flink-mode-migration
+  namespace: argocd
+spec:
+  description: Session-first, then Application Mode Flink migration lab
+  sourceRepos:
+    - https://github.com/1103461933/application-mode.git
+  destinations:
+    - namespace: session-mode-bridge-2l
+      server: https://kubernetes.default.svc
+    - namespace: application-mode-bridge-2l
+      server: https://kubernetes.default.svc
+    - namespace: default
+      server: https://kubernetes.default.svc
+    - namespace: application-mode-bridge-2l
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+

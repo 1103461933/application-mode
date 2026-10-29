@@ -1,0 +1,19 @@
+kubernetes:
+  context: aks-cluster-dev
+  sessionNamespace: session-mode-bridge-2l
+  applicationNamespace: application-mode-bridge-2l
+flink:
+  version: "2.2.0"
+  image: REPLACE_ME_REGISTRY/flink-reference-jobs:2.2.0-dev
+kafka:
+  bootstrapServers: REPLACE_ME_KAFKA_BOOTSTRAP
+couchbase:
+  connectionString: REPLACE_ME_COUCHBASE_ENDPOINT
+  bucket: REPLACE_ME_BUCKET
+  scope: REPLACE_ME_SCOPE
+state:
+  checkpointBasePath: REPLACE_ME_CHECKPOINT_PATH
+  savepointBasePath: REPLACE_ME_SAVEPOINT_PATH
+security:
+  credentialsInGit: false
+  operatorRequired: false

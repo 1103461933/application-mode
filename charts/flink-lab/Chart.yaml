@@ -1,0 +1,20 @@
+apiVersion: v2
+name: flink-lab
+description: Umbrella chart for staged Flink Session Mode and Application Mode lab deployments
+type: application
+version: 0.1.0
+appVersion: "2.2.0"
+
+dependencies:
+
+- name: session-mode
+  alias: sessionMode
+  version: 0.1.0
+  repository: "file://../session-mode"
+  condition: sessionMode.enabled
+
+- name: application-mode
+  alias: applicationMode
+  version: 0.1.0
+  repository: "file://../application-mode"
+  condition: applicationMode.enabled

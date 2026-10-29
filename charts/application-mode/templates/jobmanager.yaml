@@ -1,0 +1,43 @@
+﻿# PLACEHOLDER: replace args with the verified Flink 2.2.0 native Application Mode launch command.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-application-jobmanager
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.jobManager.replicas }}
+  selector:
+    matchLabels:
+      app: flink-application
+      component: jobmanager
+  template:
+    metadata:
+      labels:
+        app: flink-application
+        component: jobmanager
+    spec:
+      containers:
+        - name: jobmanager
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args: ["REPLACE_ME_WITH_VERIFIED_APPLICATION_MODE_COMMAND"]
+          ports:
+            - containerPort: 8081
+          env:
+            - name: COUCHBASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.couchbase.secretName }}
+                  key: {{ .Values.couchbase.usernameSecretKey }}
+            - name: COUCHBASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.couchbase.secretName }}
+                  key: {{ .Values.couchbase.passwordSecretKey }}
+          resources:
+            requests:
+              cpu: {{ .Values.jobManager.cpuRequest | quote }}
+              memory: {{ .Values.jobManager.memoryRequest | quote }}
+            limits:
+              cpu: {{ .Values.jobManager.cpuLimit | quote }}
+              memory: {{ .Values.jobManager.memoryLimit | quote }}
+

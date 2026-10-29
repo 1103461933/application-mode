@@ -1,0 +1,17 @@
+image:
+  repository: REPLACE_ME_REGISTRY/flink-session
+  tag: "2.2.0-dev"
+flinkVersion: "2.2.0"
+namespace: session-mode
+jobManager:
+  replicas: 1
+  cpuRequest: 250m
+  memoryRequest: 512Mi
+  cpuLimit: "1"
+  memoryLimit: 2Gi
+taskManager:
+  replicas: 2
+  cpuRequest: 250m
+  memoryRequest: 512Mi
+  cpuLimit: "1"
+  memoryLimit: 2Gi

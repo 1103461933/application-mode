@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-application-taskmanager
+  namespace: application-mode-bridge-2l
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flink-application
+      component: taskmanager
+  template:
+    metadata:
+      labels:
+        app: flink-application
+        component: taskmanager
+    spec:
+      serviceAccountName: flink-application
+      containers:
+        - name: taskmanager
+          image: REPLACE_ME_REGISTRY/flink-reference-jobs:2.2.0-dev
+          args: ["taskmanager"]
+          env:
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: flink-application-jobmanager
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi

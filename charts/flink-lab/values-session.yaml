@@ -1,0 +1,4 @@
+sessionMode:
+  enabled: true
+applicationMode:
+  enabled: false

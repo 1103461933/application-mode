@@ -1,0 +1,7 @@
+job:
+  name: fare-agregate
+  aggregateKey: "{tenant}:fare:{fareId}"
+  inputSchema:
+    required: [eventId, tenant, fareId, classification]
+    optional: [associatedFareRefs, attributes]
+  outputFields: [aggregateId, fareId, classification, associatedFareRefs, attributes]

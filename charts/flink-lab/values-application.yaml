@@ -1,0 +1,5 @@
+# Use only after Session Mode validation and migration approval.
+sessionMode:
+  enabled: false
+applicationMode:
+  enabled: true

@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: flink-session-first-migration
+  namespace: argo
+spec:
+  entrypoint: validate-session-mode
+  templates:
+    - name: validate-session-mode
+      steps:
+        - - name: validate-repo
+            template: validate-repo
+        - - name: session-mode-gate
+            template: session-mode-gate
+    - name: validate-repo
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - "python -m compileall -q application/flink/src && echo 'Python syntax validation passed'"
+    - name: session-mode-gate
+      container:
+        image: alpine:3.20
+        command: [sh, -c]
+        args:
+          - "echo 'Manual gate: verify Session Mode jobs, metrics and savepoint/rollback plan before proceeding to Application Mode.'"

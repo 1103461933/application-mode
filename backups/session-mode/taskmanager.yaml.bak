@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-session-taskmanager
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.taskManager.replicas }}
+  selector:
+    matchLabels:
+      app: flink-session
+      component: taskmanager
+  template:
+    metadata:
+      labels:
+        app: flink-session
+        component: taskmanager
+    spec:
+      containers:
+        - name: taskmanager
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args: ["taskmanager"]
+          env:
+            - name: JOB_MANAGER_RPC_ADDRESS
+              value: flink-session-jobmanager
+          resources:
+            requests:
+              cpu: {{ .Values.taskManager.cpuRequest | quote }}
+              memory: {{ .Values.taskManager.memoryRequest | quote }}
+            limits:
+              cpu: {{ .Values.taskManager.cpuLimit | quote }}
+              memory: {{ .Values.taskManager.memoryLimit | quote }}

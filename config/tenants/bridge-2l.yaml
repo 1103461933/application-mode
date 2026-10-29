@@ -1,0 +1,19 @@
+tenant: bridge-2l
+domain: bridge
+namespace: application-mode-bridge-2l
+pipelineConfig: config/jobs.yaml
+image:
+  repository: REPLACE_ME_REGISTRY/flink-reference-jobs
+  tag: "2.2.0-dev"
+kafka:
+  bootstrapServers: "REPLACE_ME_KAFKA_BOOTSTRAP"
+  topicPrefix: "2l.bridge"
+couchbase:
+  connectionString: "REPLACE_ME_COUCHBASE_ENDPOINT"
+  bucket: "flight-reservations"
+  scope: "reservations"
+  usernameSecretEnv: COUCHBASE_USERNAME
+  passwordSecretEnv: COUCHBASE_PASSWORD
+security:
+  networkPolicyEnabled: true
+  resourceQuotaEnabled: true
