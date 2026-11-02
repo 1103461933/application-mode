@@ -19,7 +19,6 @@ RUN mvn -B -f kafka-pom.xml \
 
 
 # Stage 2: Flink Application Mode runtime.
-ARG FLINK_BASE_IMAGE=flink:2.2.0
 FROM ${FLINK_BASE_IMAGE}
 
 USER root
