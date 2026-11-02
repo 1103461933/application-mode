@@ -68,6 +68,7 @@ global:
     bucket: flight-reservations
     scope: reservations
   state:
+    haBasePath: "abfss://application-mode-ha@flinkstorage911.dfs.core.windows.net/"
     checkpointBasePath: "abfss://application-mode-checkpoints@flinkstorage911.dfs.core.windows.net/"
     savepointBasePath: "abfss://application-mode-savapoints@flinkstorage911.dfs.core.windows.net/"
 
