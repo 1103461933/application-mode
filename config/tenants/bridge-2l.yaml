@@ -1,4 +1,4 @@
-tenant: bridge-2l
+tenant: 2l
 domain: bridge
 namespace: application-mode-bridge-2l
 pipelineConfig: config/jobs.yaml

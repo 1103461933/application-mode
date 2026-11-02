@@ -1,5 +1,5 @@
-﻿image:
-  repository: REPLACE_ME_REGISTRY/flink-session
+image:
+  repository: xlen911/flink-reference-jobs
   tag: "2.2.0-dev"
 flinkVersion: "2.2.0"
 namespace: session-mode-bridge-2l
@@ -21,3 +21,4 @@ couchbase:
   secretName: couchbase-auth
   usernameSecretKey: username
   passwordSecretKey: password
+

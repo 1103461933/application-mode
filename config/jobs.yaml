@@ -3,7 +3,7 @@ kind: FlinkReferenceJobs
 spec:
   metadata:
     domain: bridge
-    tenant: bridge-2l
+    tenant: 2l
   flinkVersion: "2.2.0"
   parallelism: 1
   checkpointIntervalMs: 30000

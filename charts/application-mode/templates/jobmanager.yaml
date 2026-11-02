@@ -19,7 +19,13 @@ spec:
       containers:
         - name: jobmanager
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          args: ["REPLACE_ME_WITH_VERIFIED_APPLICATION_MODE_COMMAND"]
+          args:
+            - standalone-job
+            - --job-classname
+            - org.apache.flink.client.python.PythonDriver
+            - --
+            - -py
+            - /opt/flink/usrlib/application/src/application_entrypoint.py
           ports:
             - containerPort: 8081
           env:

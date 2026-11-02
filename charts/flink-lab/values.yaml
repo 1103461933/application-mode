@@ -2,7 +2,7 @@
 sessionMode:
   enabled: true
   image:
-    repository: REPLACE_ME_REGISTRY/flink-session
+    repository: xlen911/flink-reference-jobs
     tag: "2.2.0-dev"
   flinkVersion: "2.2.0"
   namespace: session-mode-bridge-2l
@@ -32,7 +32,7 @@ sessionMode:
 applicationMode:
   enabled: false
   image:
-    repository: REPLACE_ME_REGISTRY/flink-reference-jobs
+    repository: xlen911/flink-reference-jobs
     tag: "2.2.0-dev"
   flinkVersion: "2.2.0"
   namespace: application-mode-bridge-2l
@@ -62,11 +62,14 @@ applicationMode:
 global:
   flinkVersion: "2.2.0"
   kafka:
-    bootstrapServers: REPLACE_ME_KAFKA_BOOTSTRAP
+    bootstrapServers: flight-kafka-kafka-bootstrap.stratos-rnd-dev.svc.cluster.local:9092
   couchbase:
-    connectionString: REPLACE_ME_COUCHBASE_ENDPOINT
-    bucket: REPLACE_ME_BUCKET
-    scope: REPLACE_ME_SCOPE
+    connectionString: couchbase://flight-couchbase-srv.stratos-rnd-dev.svc.cluster.local
+    bucket: flight-reservations
+    scope: reservations
   state:
     checkpointBasePath: REPLACE_ME_CHECKPOINT_PATH
     savepointBasePath: REPLACE_ME_SAVEPOINT_PATH
+
+
+

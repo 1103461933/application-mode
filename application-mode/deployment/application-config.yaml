@@ -6,6 +6,6 @@ metadata:
 data:
   FLINK_VERSION: "2.2.0"
   DOMAIN: "product-management"
-  TENANT: "bridge-2l"
+  TENANT: "2l"
   JOB_NAMES: "AirlegCabin,Equipment,Fare,Schedule"
   KAFKA_BOOTSTRAP_SERVERS: "REPLACE_WITH_VERIFIED_KAFKA_BOOTSTRAP"

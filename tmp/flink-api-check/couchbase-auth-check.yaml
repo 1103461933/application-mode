@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: couchbase-auth-check
+  namespace: stratos-rnd-dev
+spec:
+  restartPolicy: Never
+  containers:
+    - name: curl
+      image: curlimages/curl:8.12.1
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            --user "${CB_USERNAME}:${CB_PASSWORD}" \
+            http://flight-couchbase:8091/pools)
+          echo "HTTP_STATUS=${code}"
+      env:
+        - name: CB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: couchbase-auth
+              key: username
+        - name: CB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: couchbase-auth
+              key: password
+      resources:
+        requests:
+          cpu: 25m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi

@@ -1,0 +1,4 @@
+com\example\flink\CouchbaseSink.class
+com\example\flink\LoggingSinkWriter.class
+com\example\flink\CouchbaseSinkWriter.class
+com\example\flink\LoggingSink.class

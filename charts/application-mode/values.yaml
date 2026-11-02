@@ -1,5 +1,5 @@
 ﻿image:
-  repository: REPLACE_ME_REGISTRY/flink-reference-jobs
+  repository: xlen911/flink-reference-jobs
   tag: "2.2.0-dev"
 flinkVersion: "2.2.0"
 namespace: application-mode-bridge-2l
