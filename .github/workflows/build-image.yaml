@@ -2,6 +2,13 @@ name: Build Flink reference jobs image
 
 on:
   workflow_dispatch:
+    inputs:
+      image_version:
+        description: "Image version (numeric format: X.Y.Z)"
+        required: true
+        type: string
+        default: "2.2.1"
+
   push:
     branches:
       - main
@@ -9,16 +16,14 @@ on:
       - "application/flink/**"
       - ".github/workflows/build-image.yaml"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build and publish Flink image
     runs-on: ubuntu-latest
-
-    # Load environment-scoped variables and secrets from GitHub Environment: dev
     environment: dev
-
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -47,6 +52,31 @@ jobs:
 
           echo "Required registry configuration is available."
 
+      - name: Determine image version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.image_version }}
+          EVENT_NAME: ${{ github.event_name }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            IMAGE_VERSION="$INPUT_VERSION"
+
+            if [[ ! "$IMAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Invalid image version. Use X.Y.Z, for example 2.2.1"
+              exit 1
+            fi
+          else
+            # Automatic builds use a numeric tag derived from the commit SHA.
+            IMAGE_VERSION="2.2.0"
+
+            SHA_NUMBER=$((16#${GIT_SHA:0:7}))
+            IMAGE_VERSION="${IMAGE_VERSION}.${SHA_NUMBER}"
+          fi
+
+          echo "image_version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Image version: $IMAGE_VERSION"
+
       - name: Login to container registry
         uses: docker/login-action@v3
         with:
@@ -58,4 +88,5 @@ jobs:
         with:
           context: ./application/flink
           push: true
-          tags: ${{ vars.IMAGE_REGISTRY }}/flink-reference-jobs:2.2.0-${{ github.sha }}
+          tags: |
+            ${{ vars.IMAGE_REGISTRY }}/flink-reference-jobs:${{ steps.version.outputs.image_version }}
