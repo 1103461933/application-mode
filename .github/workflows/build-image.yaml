@@ -1,27 +1,60 @@
 name: Build Flink reference jobs image
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - "application/flink/**"
       - ".github/workflows/build-image.yaml"
+
 jobs:
   build:
+    name: Build and publish Flink image
     runs-on: ubuntu-latest
+
+    # Load environment-scoped variables and secrets from GitHub Environment: dev
+    environment: dev
+
     permissions:
       contents: read
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Validate required secrets
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required configuration
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+          IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY }}
         run: |
-          test -n "${{ secrets.REGISTRY_USERNAME }}"
-          test -n "${{ secrets.REGISTRY_TOKEN }}"
-      - uses: docker/login-action@v3
+          test -n "$REGISTRY_USERNAME" || {
+            echo "::error::REGISTRY_USERNAME is missing from environment dev"
+            exit 1
+          }
+
+          test -n "$REGISTRY_TOKEN" || {
+            echo "::error::REGISTRY_TOKEN is missing from environment dev"
+            exit 1
+          }
+
+          test -n "$IMAGE_REGISTRY" || {
+            echo "::error::IMAGE_REGISTRY is missing from environment dev"
+            exit 1
+          }
+
+          echo "Required registry configuration is available."
+
+      - name: Login to container registry
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
-      - uses: docker/build-push-action@v6
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
           context: ./application/flink
           push: true
