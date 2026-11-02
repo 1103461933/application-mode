@@ -1,4 +1,4 @@
-﻿# Stage 1: Build the Java Couchbase sink and resolve Kafka dependencies.
+# Stage 1: Build the Java Couchbase sink and resolve Kafka dependencies.
 FROM maven:3.9-eclipse-temurin-17 AS java-builder
 
 WORKDIR /build
@@ -19,7 +19,7 @@ RUN mvn -B -f kafka-pom.xml \
 
 
 # Stage 2: Flink Application Mode runtime.
-FROM ${FLINK_BASE_IMAGE}
+FROM flink:2.2.0
 
 USER root
 
@@ -70,3 +70,4 @@ COPY src/ /opt/flink/usrlib/application/src/
 COPY config/jobs.yaml /opt/flink/usrlib/application/config/jobs.yaml
 
 USER flink
+
