@@ -3,7 +3,7 @@ sessionMode:
   enabled: true
   image:
     repository: xlen911/flink-reference-jobs
-    tag: "2.2.0-dev"
+    tag: "2.2.1"
   flinkVersion: "2.2.0"
   namespace: session-mode-bridge-2l
   jobManager:
@@ -68,8 +68,8 @@ global:
     bucket: flight-reservations
     scope: reservations
   state:
-    checkpointBasePath: REPLACE_ME_CHECKPOINT_PATH
-    savepointBasePath: REPLACE_ME_SAVEPOINT_PATH
+    checkpointBasePath: "abfss://application-mode-checkpoints@flinkstorage911.dfs.core.windows.net/"
+    savepointBasePath: "abfss://application-mode-savapoints@flinkstorage911.dfs.core.windows.net/"
 
 
 
