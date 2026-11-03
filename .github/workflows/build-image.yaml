@@ -20,7 +20,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: flink-image-release-${{ github.ref }}
+  group: flink-gitops-main
   cancel-in-progress: false
 
 jobs:
@@ -30,11 +30,18 @@ jobs:
     environment: dev
 
     steps:
+      # --------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: true
 
+      # --------------------------------------------------
+      # 2. Validate required configuration
+      # --------------------------------------------------
       - name: Validate required configuration
         env:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
@@ -58,6 +65,9 @@ jobs:
 
           echo "Required registry configuration is available."
 
+      # --------------------------------------------------
+      # 3. Determine image version
+      # --------------------------------------------------
       - name: Determine image version
         id: version
         env:
@@ -83,6 +93,9 @@ jobs:
           echo "image_version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "Image version: $IMAGE_VERSION"
 
+      # --------------------------------------------------
+      # 4. Set image repository
+      # --------------------------------------------------
       - name: Set image repository
         id: image
         env:
@@ -94,12 +107,18 @@ jobs:
           echo "repository=$IMAGE_REPOSITORY" >> "$GITHUB_OUTPUT"
           echo "Image repository: $IMAGE_REPOSITORY"
 
+      # --------------------------------------------------
+      # 5. Login to container registry
+      # --------------------------------------------------
       - name: Login to container registry
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
+      # --------------------------------------------------
+      # 6. Build and push image
+      # --------------------------------------------------
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -108,6 +127,9 @@ jobs:
           tags: |
             ${{ steps.image.outputs.repository }}:${{ steps.version.outputs.image_version }}
 
+      # --------------------------------------------------
+      # 7. Install yq
+      # --------------------------------------------------
       - name: Install yq
         run: |
           YQ_VERSION="v4.44.3"
@@ -120,6 +142,9 @@ jobs:
 
           yq --version
 
+      # --------------------------------------------------
+      # 8. Update Application Mode Helm values
+      # --------------------------------------------------
       - name: Update Application Mode Helm values
         env:
           IMAGE_REPOSITORY: ${{ steps.image.outputs.repository }}
@@ -151,25 +176,49 @@ jobs:
 
           echo "Session Mode validation successful."
 
+      # --------------------------------------------------
+      # 9. Commit and push Helm values
+      # --------------------------------------------------
       - name: Commit and push Helm values
         env:
           IMAGE_VERSION: ${{ steps.version.outputs.image_version }}
         run: |
           VALUES_FILE="charts/flink-lab/values-application.yaml"
+          BRANCH="${GITHUB_REF_NAME}"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # Stage Helm values changes.
           git add "$VALUES_FILE"
 
+          # Skip commit if there are no changes.
           if git diff --cached --quiet; then
             echo "No Helm changes detected. Skipping GitOps commit."
             exit 0
           fi
 
+          # Create GitOps commit.
           git commit -m "chore(gitops): deploy Application Mode image ${IMAGE_VERSION}"
 
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          # Fetch latest changes from remote branch.
+          echo "Fetching latest changes from origin/${BRANCH}..."
+
+          git fetch origin "$BRANCH"
+
+          # Rebase local commit on top of latest remote changes.
+          echo "Rebasing local changes on top of origin/${BRANCH}..."
+
+          if ! git rebase "origin/${BRANCH}"; then
+            echo "::error::Git rebase failed. Possible conflict in Helm values."
+            git rebase --abort || true
+            exit 1
+          fi
+
+          # Push updated branch.
+          echo "Pushing GitOps changes to origin/${BRANCH}..."
+
+          git push origin "HEAD:${BRANCH}"
 
           echo "GitOps update published successfully."
           echo "Application Mode image version: ${IMAGE_VERSION}"
