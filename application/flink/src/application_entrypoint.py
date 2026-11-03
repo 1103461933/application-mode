@@ -26,6 +26,24 @@ from jobs.ssr_agregate import process_event as process_ssr
 from runtime import create_couchbase_sink
 from pyflink.java_gateway import get_gateway
 
+def committed_offsets_initializer():
+    """
+    Creates a committed offsets initializer using the original Kafka
+    OffsetResetStrategy class expected by the Flink Kafka connector.
+    """
+    jvm = get_gateway().jvm
+
+    java_strategy = (
+        jvm.org.apache.kafka.clients.consumer.OffsetResetStrategy.NONE
+    )
+
+    java_initializer = (
+        jvm.org.apache.flink.connector.kafka.source.enumerator.initializer
+        .OffsetsInitializer.committedOffsets(java_strategy)
+    )
+
+    return KafkaOffsetsInitializer(java_initializer)
+
 
 LOG = logging.getLogger("flink-reference-jobs")
 
@@ -137,7 +155,7 @@ def build_pipeline(env, config, job):
         .set_topics(topic)
         .set_group_id(group_id)
         .set_starting_offsets(
-            KafkaOffsetsInitializer.committed_offsets()
+            committed_offsets_initializer()
         )
         .set_value_only_deserializer(
             SimpleStringSchema()
