@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.jobManager.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: flink-application
