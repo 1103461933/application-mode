@@ -28,13 +28,13 @@ from pyflink.java_gateway import get_gateway
 
 def committed_offsets_initializer():
     """
-    Creates a committed offsets initializer using the original Kafka
-    OffsetResetStrategy class expected by the Flink Kafka connector.
+    Starts from the earliest available Kafka offset when no
+    committed offset exists for a partition.
     """
     jvm = get_gateway().jvm
 
     java_strategy = (
-        jvm.org.apache.kafka.clients.consumer.OffsetResetStrategy.NONE
+        jvm.org.apache.kafka.clients.consumer.OffsetResetStrategy.EARLIEST
     )
 
     java_initializer = (
