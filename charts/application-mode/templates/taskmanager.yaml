@@ -20,6 +20,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           args: ["taskmanager"]
           env:
+            - name: ENABLE_BUILT_IN_PLUGINS
+              value: "flink-azure-fs-hadoop-2.2.0.jar"
             - name: JOB_MANAGER_RPC_ADDRESS
               value: flink-application-jobmanager
             - name: COUCHBASE_USERNAME

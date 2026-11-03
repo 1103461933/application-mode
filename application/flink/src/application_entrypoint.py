@@ -24,6 +24,7 @@ from jobs.equipment_agregate import process_event as process_equipment
 from jobs.fare_agregate import process_event as process_fare
 from jobs.ssr_agregate import process_event as process_ssr
 from runtime import create_couchbase_sink
+from pyflink.java_gateway import get_gateway
 
 
 LOG = logging.getLogger("flink-reference-jobs")

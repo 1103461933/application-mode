@@ -29,6 +29,8 @@ spec:
           ports:
             - containerPort: 8081
           env:
+            - name: ENABLE_BUILT_IN_PLUGINS
+              value: "flink-azure-fs-hadoop-2.2.0.jar"
             - name: COUCHBASE_USERNAME
               valueFrom:
                 secretKeyRef:
