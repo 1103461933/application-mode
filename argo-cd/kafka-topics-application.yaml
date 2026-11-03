@@ -1,0 +1,20 @@
+﻿apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka-topics-bridge-2l
+  namespace: argocd
+spec:
+  project: flink-mode-migration
+  source:
+    repoURL: https://github.com/1103461933/application-mode.git
+    targetRevision: main
+    path: kafka/bridge-2l
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: stratos-rnd-dev
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

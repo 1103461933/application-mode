@@ -12,6 +12,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: application-mode-bridge-2l
       server: https://kubernetes.default.svc
+    - namespace: stratos-rnd-dev
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
