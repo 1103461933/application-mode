@@ -30,7 +30,7 @@ sessionMode:
       specFile: fare-agregate.yaml
 
 applicationMode:
-  enabled: false
+  enabled: true
   image:
     repository: xlen911/flink-reference-jobs
     tag: "2.2.1"
