@@ -8,6 +8,10 @@ spec:
     managed: true
     resources:
       - kind: CouchbaseCollection
+        name: bookings
+      - kind: CouchbaseCollection
+        name: processed
+      - kind: CouchbaseCollection
         name: equipment
       - kind: CouchbaseCollection
         name: ssr

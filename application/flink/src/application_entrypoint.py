@@ -25,6 +25,7 @@ from jobs.fare_agregate import process_event as process_fare
 from jobs.ssr_agregate import process_event as process_ssr
 from runtime import create_couchbase_sink
 from pyflink.java_gateway import get_gateway
+from pyflink.common.typeinfo import Types
 
 def committed_offsets_initializer():
     """
@@ -175,11 +176,12 @@ def build_pipeline(env, config, job):
     # Parse, process, and serialize the event.
     # Invalid JSON or invalid events fail visibly.
     normalized = stream.map(
-        lambda raw: json.dumps(
-            processor(normalize_json_event(raw)),
-            separators=(",", ":"),
-            sort_keys=True,
-        )
+    lambda raw: json.dumps(
+        processor(normalize_json_event(raw)),
+        separators=(",", ":"),
+        sort_keys=True,
+    ),
+    output_type=Types.STRING(),
     )
 
     # Read Couchbase credentials from environment variables.
