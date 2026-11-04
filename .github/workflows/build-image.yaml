@@ -7,20 +7,15 @@ on:
         description: "Image version (numeric format: X.Y.Z)"
         required: true
         type: string
-        default: "2.2.1"
-
-  push:
-    branches:
-      - main
-    paths:
-      - "application/flink/**"
-      - ".github/workflows/build-image.yaml"
+        default: "2.2.8"
 
 permissions:
   contents: write
 
+# Serialize all executions of this workflow.
+# Do not cancel an execution that is publishing or updating GitOps.
 concurrency:
-  group: flink-gitops-main
+  group: flink-application-mode-main
   cancel-in-progress: false
 
 jobs:
@@ -36,6 +31,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           persist-credentials: true
 
@@ -48,6 +44,8 @@ jobs:
           REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
           IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY }}
         run: |
+          set -euo pipefail
+
           test -n "$REGISTRY_USERNAME" || {
             echo "::error::REGISTRY_USERNAME is missing from environment dev"
             exit 1
@@ -66,32 +64,24 @@ jobs:
           echo "Required registry configuration is available."
 
       # --------------------------------------------------
-      # 3. Determine image version
+      # 3. Determine and validate image version
       # --------------------------------------------------
       - name: Determine image version
         id: version
         env:
-          INPUT_VERSION: ${{ inputs.image_version }}
-          EVENT_NAME: ${{ github.event_name }}
-          GIT_SHA: ${{ github.sha }}
+          IMAGE_VERSION: ${{ inputs.image_version }}
         run: |
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            IMAGE_VERSION="$INPUT_VERSION"
+          set -euo pipefail
 
-            if [[ ! "$IMAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::Invalid image version. Use X.Y.Z, for example 2.2.2"
-              exit 1
-            fi
-          else
-            # Automatic builds use a numeric tag derived from the commit SHA.
-            IMAGE_VERSION="2.2.0"
-
-            SHA_NUMBER=$((16#${GIT_SHA:0:7}))
-            IMAGE_VERSION="${IMAGE_VERSION}.${SHA_NUMBER}"
+          if [[ ! "$IMAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid image version: $IMAGE_VERSION"
+            echo "::error::Use numeric format X.Y.Z, for example 2.2.8"
+            exit 1
           fi
 
           echo "image_version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Image version: $IMAGE_VERSION"
+
+          echo "Selected image version: $IMAGE_VERSION"
 
       # --------------------------------------------------
       # 4. Set image repository
@@ -101,10 +91,13 @@ jobs:
         env:
           IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY }}
         run: |
+          set -euo pipefail
+
           IMAGE_REGISTRY="${IMAGE_REGISTRY%/}"
           IMAGE_REPOSITORY="${IMAGE_REGISTRY}/flink-reference-jobs"
 
           echo "repository=$IMAGE_REPOSITORY" >> "$GITHUB_OUTPUT"
+
           echo "Image repository: $IMAGE_REPOSITORY"
 
       # --------------------------------------------------
@@ -132,6 +125,8 @@ jobs:
       # --------------------------------------------------
       - name: Install yq
         run: |
+          set -euo pipefail
+
           YQ_VERSION="v4.44.3"
 
           sudo curl -fsSL \
@@ -143,82 +138,101 @@ jobs:
           yq --version
 
       # --------------------------------------------------
-      # 8. Update Application Mode Helm values
+      # 8. Update Helm values and push GitOps changes
       # --------------------------------------------------
-      - name: Update Application Mode Helm values
+      - name: Update Helm values and push GitOps changes
         env:
           IMAGE_REPOSITORY: ${{ steps.image.outputs.repository }}
           IMAGE_VERSION: ${{ steps.version.outputs.image_version }}
         run: |
-          VALUES_FILE="charts/flink-lab/values-application.yaml"
+          set -euo pipefail
 
+          VALUES_FILE="charts/flink-lab/values-application.yaml"
+          BRANCH="main"
+          MAX_RETRIES=5
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Validate the Helm values file exists.
           if [ ! -f "$VALUES_FILE" ]; then
             echo "::error::Helm values file not found: $VALUES_FILE"
             exit 1
           fi
 
-          # Update only Application Mode image configuration.
-          yq -i '
-            .applicationMode.image.repository = strenv(IMAGE_REPOSITORY) |
-            .applicationMode.image.tag = strenv(IMAGE_VERSION)
-          ' "$VALUES_FILE"
+          # Retry GitOps update if main changes concurrently.
+          for ATTEMPT in $(seq 1 "$MAX_RETRIES"); do
 
-          echo "Updated Application Mode image configuration:"
-          yq '.applicationMode.image' "$VALUES_FILE"
+            echo "------------------------------------------"
+            echo "GitOps update attempt: $ATTEMPT/$MAX_RETRIES"
+            echo "------------------------------------------"
 
-          # Validate that Session Mode remains disabled.
-          SESSION_MODE_ENABLED=$(yq -r '.sessionMode.enabled' "$VALUES_FILE")
+            # Always start from the latest remote main.
+            git fetch origin "$BRANCH"
 
-          if [ "$SESSION_MODE_ENABLED" != "false" ]; then
-            echo "::error::Session Mode must remain disabled in values-application.yaml"
-            exit 1
-          fi
+            git reset --hard "origin/$BRANCH"
 
-          echo "Session Mode validation successful."
+            # Validate Session Mode remains disabled.
+            SESSION_MODE_ENABLED=$(yq -r '.sessionMode.enabled' "$VALUES_FILE")
 
-      # --------------------------------------------------
-      # 9. Commit and push Helm values
-      # --------------------------------------------------
-      - name: Commit and push Helm values
-        env:
-          IMAGE_VERSION: ${{ steps.version.outputs.image_version }}
-        run: |
-          VALUES_FILE="charts/flink-lab/values-application.yaml"
-          BRANCH="${GITHUB_REF_NAME}"
+            if [ "$SESSION_MODE_ENABLED" != "false" ]; then
+              echo "::error::Session Mode must remain disabled."
+              exit 1
+            fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            # Update only Application Mode image configuration.
+            yq -i '
+              .applicationMode.image.repository = strenv(IMAGE_REPOSITORY) |
+              .applicationMode.image.tag = strenv(IMAGE_VERSION)
+            ' "$VALUES_FILE"
 
-          # Stage Helm values changes.
-          git add "$VALUES_FILE"
+            echo "Application Mode image configuration:"
+            yq '.applicationMode.image' "$VALUES_FILE"
 
-          # Skip commit if there are no changes.
-          if git diff --cached --quiet; then
-            echo "No Helm changes detected. Skipping GitOps commit."
-            exit 0
-          fi
+            # Validate Session Mode again after modification.
+            SESSION_MODE_ENABLED=$(yq -r '.sessionMode.enabled' "$VALUES_FILE")
 
-          # Create GitOps commit.
-          git commit -m "chore(gitops): deploy Application Mode image ${IMAGE_VERSION}"
+            if [ "$SESSION_MODE_ENABLED" != "false" ]; then
+              echo "::error::Session Mode must remain disabled."
+              exit 1
+            fi
 
-          # Fetch latest changes from remote branch.
-          echo "Fetching latest changes from origin/${BRANCH}..."
+            # Stage only the Application Mode values file.
+            git add "$VALUES_FILE"
 
-          git fetch origin "$BRANCH"
+            # Skip commit when the requested version is already deployed in Git.
+            if git diff --cached --quiet; then
+              echo "Helm values already contain version ${IMAGE_VERSION}."
+              echo "No GitOps commit required."
+              exit 0
+            fi
 
-          # Rebase local commit on top of latest remote changes.
-          echo "Rebasing local changes on top of origin/${BRANCH}..."
+            # Create GitOps commit.
+            git commit -m \
+              "chore(gitops): deploy Application Mode image ${IMAGE_VERSION}"
 
-          if ! git rebase "origin/${BRANCH}"; then
-            echo "::error::Git rebase failed. Possible conflict in Helm values."
-            git rebase --abort || true
-            exit 1
-          fi
+            # Push without force.
+            # If another workflow updates main, retry from its latest state.
+            if git push origin "HEAD:${BRANCH}"; then
+              echo "------------------------------------------"
+              echo "GitOps update published successfully."
+              echo "Application Mode image: ${IMAGE_VERSION}"
+              echo "------------------------------------------"
+              exit 0
+            fi
 
-          # Push updated branch.
-          echo "Pushing GitOps changes to origin/${BRANCH}..."
+            echo "::warning::Push rejected. Another update may have changed main."
 
-          git push origin "HEAD:${BRANCH}"
+            # Discard the local commit and retry from latest remote state.
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
 
-          echo "GitOps update published successfully."
-          echo "Application Mode image version: ${IMAGE_VERSION}"
+            if [ "$ATTEMPT" -lt "$MAX_RETRIES" ]; then
+              sleep $((ATTEMPT * 2))
+            fi
+
+          done
+
+          echo "::error::Unable to update Helm values after ${MAX_RETRIES} attempts."
+          exit 1
