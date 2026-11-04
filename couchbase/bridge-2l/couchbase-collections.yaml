@@ -1,0 +1,23 @@
+apiVersion: couchbase.com/v2
+kind: CouchbaseCollection
+metadata:
+  name: equipment
+  namespace: stratos-rnd-dev
+spec:
+  maxTTL: "0"
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCollection
+metadata:
+  name: ssr
+  namespace: stratos-rnd-dev
+spec:
+  maxTTL: "0"
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCollection
+metadata:
+  name: fare
+  namespace: stratos-rnd-dev
+spec:
+  maxTTL: "0"
