@@ -17,3 +17,5 @@ spec:
         name: ssr
       - kind: CouchbaseCollection
         name: fare
+      - kind: CouchbaseCollection
+        name: producer_versions

@@ -1,0 +1,2 @@
+couchbase==4.3.2
+kafka-python==2.2.15

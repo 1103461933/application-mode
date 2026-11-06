@@ -5,3 +5,12 @@ __pycache__/
 *.py[cod]
 dist/
 build/
+# Python virtual environments
+.venv-*/
+venv/
+
+# Local Python wheels
+wheels/
+
+# Local installation logs
+couchbase-install.log
