@@ -21,3 +21,11 @@ metadata:
   namespace: stratos-rnd-dev
 spec:
   maxTTL: "0"
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCollection
+metadata:
+  name: producer_versions
+  namespace: stratos-rnd-dev
+spec:
+  maxTTL: "0"
