@@ -19,3 +19,6 @@ couchbase:
   secretName: couchbase-auth
   usernameSecretKey: username
   passwordSecretKey: password
+azureStorage:
+  accountName: flinkstorage911
+  providerClass: com.xlen.azure.WorkloadIdentityTokenProvider
