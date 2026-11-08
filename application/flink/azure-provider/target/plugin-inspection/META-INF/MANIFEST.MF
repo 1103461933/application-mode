@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven 3.8.6
+Built-By: hangruan
+Build-Jdk: 11.0.28
+Specification-Title: Flink : FileSystems : Azure FS Hadoop
+Specification-Version: 2.2.0
+Specification-Vendor: The Apache Software Foundation
+Implementation-Title: Flink : FileSystems : Azure FS Hadoop
+Implementation-Version: 2.2.0
+Implementation-Vendor-Id: org.apache.flink
+Implementation-Vendor: The Apache Software Foundation
+

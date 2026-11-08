@@ -17,7 +17,9 @@ spec:
       labels:
         app: flink-application
         component: jobmanager
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: flink-application
       containers:
         - name: jobmanager
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

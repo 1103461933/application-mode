@@ -19,7 +19,9 @@ spec:
       labels:
         app: flink-application
         component: taskmanager
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: flink-application
       containers:
         - name: taskmanager
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -46,4 +48,3 @@ spec:
             limits:
               cpu: {{ .Values.taskManager.cpuLimit | quote }}
               memory: {{ .Values.taskManager.memoryLimit | quote }}
-
