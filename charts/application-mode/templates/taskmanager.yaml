@@ -32,6 +32,10 @@ spec:
             - name: FLINK_PROPERTIES
               value: |
                 jobmanager.rpc.address: flink-application-jobmanager
+
+                taskmanager.memory.process.size: {{ .Values.taskManager.memoryProcessSize }}
+                taskmanager.memory.jvm-metaspace.size: {{ .Values.taskManager.jvmMetaspaceSize }}
+
                 fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
                 fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
 
