@@ -1,4 +1,3 @@
-
 # ============================================================
 # Stage 1: Build Java components and resolve dependencies
 # ============================================================
@@ -23,6 +22,35 @@ RUN mvn -B -f kafka-pom.xml \
     dependency:copy-dependencies \
     -DincludeScope=runtime \
     -DoutputDirectory=/build/kafka-deps
+
+# ------------------------------------------------------------
+# Resolve Hadoop Common runtime dependencies
+# Required for Hadoop FileSystem support (file://)
+# and org.apache.hadoop.conf.Configuration.
+# Version aligned with Flink 2.2.0.
+# ------------------------------------------------------------
+RUN printf '%s\n' \
+    '<project xmlns="http://maven.apache.org/POM/4.0.0"' \
+    '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' \
+    '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">' \
+    '    <modelVersion>4.0.0</modelVersion>' \
+    '    <groupId>com.xlen.flink</groupId>' \
+    '    <artifactId>hadoop-runtime-dependencies</artifactId>' \
+    '    <version>1.0.0</version>' \
+    '    <dependencies>' \
+    '        <dependency>' \
+    '            <groupId>org.apache.hadoop</groupId>' \
+    '            <artifactId>hadoop-common</artifactId>' \
+    '            <version>2.10.2</version>' \
+    '        </dependency>' \
+    '    </dependencies>' \
+    '</project>' \
+    > /build/hadoop-pom.xml
+
+RUN mvn -B -f /build/hadoop-pom.xml \
+    dependency:copy-dependencies \
+    -DincludeScope=runtime \
+    -DoutputDirectory=/build/hadoop-deps
 
 # ------------------------------------------------------------
 # Build Azure Workload Identity Token Provider
@@ -85,6 +113,14 @@ COPY --from=java-builder \
 # ------------------------------------------------------------
 COPY --from=java-builder \
     /build/kafka-deps/ \
+    /opt/flink/lib/
+
+# ------------------------------------------------------------
+# Install Hadoop Common and runtime dependencies
+# Provides Hadoop FileSystem classes, including file://
+# ------------------------------------------------------------
+COPY --from=java-builder \
+    /build/hadoop-deps/ \
     /opt/flink/lib/
 
 # ------------------------------------------------------------

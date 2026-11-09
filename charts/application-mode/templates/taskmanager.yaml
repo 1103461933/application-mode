@@ -1,4 +1,5 @@
-﻿apiVersion: apps/v1
+﻿
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flink-application-taskmanager
@@ -33,12 +34,13 @@ spec:
               value: |
                 jobmanager.rpc.address: flink-application-jobmanager
 
+                taskmanager.numberOfTaskSlots: 2
+
                 taskmanager.memory.process.size: {{ .Values.taskManager.memoryProcessSize }}
                 taskmanager.memory.jvm-metaspace.size: {{ .Values.taskManager.jvmMetaspaceSize }}
 
                 fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
                 fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
-
 
             - name: JOB_MANAGER_RPC_ADDRESS
               value: flink-application-jobmanager
