@@ -1,12 +1,11 @@
 # Use only after Session Mode validation and migration approval.
 sessionMode:
   enabled: false
-
 applicationMode:
   enabled: true
   image:
     repository: xlen911/flink-reference-jobs
-    tag: 2.2.17
+    tag: 2.2.18
   taskManager:
     memoryProcessSize: 1856m
     jvmMetaspaceSize: 384m
