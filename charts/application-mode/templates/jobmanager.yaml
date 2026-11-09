@@ -38,8 +38,8 @@ spec:
             - name: FLINK_PROPERTIES
               value: |
                 jobmanager.rpc.address: flink-application-jobmanager
-                flink.hadoop.fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
-                flink.hadoop.fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
+                fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
+                fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
 
             - name: JOB_MANAGER_RPC_ADDRESS
               value: flink-application-jobmanager

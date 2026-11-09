@@ -32,8 +32,8 @@ spec:
             - name: FLINK_PROPERTIES
               value: |
                 jobmanager.rpc.address: flink-application-jobmanager
-                flink.hadoop.fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
-                flink.hadoop.fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
+                fs.azure.account.auth.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: Custom
+                fs.azure.account.oauth.provider.type.{{ .Values.azureStorage.accountName }}.dfs.core.windows.net: {{ .Values.azureStorage.providerClass }}
 
             - name: ENABLE_BUILT_IN_PLUGINS
               value: "flink-azure-fs-hadoop-2.2.0.jar"
