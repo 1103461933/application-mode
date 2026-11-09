@@ -27,7 +27,11 @@ RUN mvn -B -f kafka-pom.xml \
 # Resolve Hadoop Common runtime dependencies
 # Required for Hadoop FileSystem support (file://)
 # and org.apache.hadoop.conf.Configuration.
-# Version aligned with Flink 2.2.0.
+#
+# Explicitly pin commons-cli to 1.5.0.
+# Flink 2.2.0 requires this version.
+# Hadoop Common 2.10.2 can otherwise introduce
+# commons-cli 1.2 transitively.
 # ------------------------------------------------------------
 RUN printf '%s\n' \
     '<project xmlns="http://maven.apache.org/POM/4.0.0"' \
@@ -43,14 +47,29 @@ RUN printf '%s\n' \
     '            <artifactId>hadoop-common</artifactId>' \
     '            <version>2.10.2</version>' \
     '        </dependency>' \
+    '        <dependency>' \
+    '            <groupId>commons-cli</groupId>' \
+    '            <artifactId>commons-cli</artifactId>' \
+    '            <version>1.5.0</version>' \
+    '        </dependency>' \
     '    </dependencies>' \
     '</project>' \
     > /build/hadoop-pom.xml
 
+# Verify resolved Commons CLI dependency
+RUN mvn -B -f /build/hadoop-pom.xml \
+    dependency:tree \
+    -Dincludes=commons-cli:commons-cli
+
+# Copy Hadoop runtime dependencies
 RUN mvn -B -f /build/hadoop-pom.xml \
     dependency:copy-dependencies \
     -DincludeScope=runtime \
     -DoutputDirectory=/build/hadoop-deps
+
+# Ensure Maven copied the expected version
+RUN test -f /build/hadoop-deps/commons-cli-1.5.0.jar && \
+    test "$(find /build/hadoop-deps -maxdepth 1 -name 'commons-cli-*.jar' | wc -l)" -eq 1
 
 # ------------------------------------------------------------
 # Build Azure Workload Identity Token Provider
@@ -122,6 +141,20 @@ COPY --from=java-builder \
 COPY --from=java-builder \
     /build/hadoop-deps/ \
     /opt/flink/lib/
+
+# ------------------------------------------------------------
+# Enforce Commons CLI version required by Flink 2.2.0
+# Remove any other version that may have been introduced
+# by Kafka or Hadoop runtime dependencies.
+# ------------------------------------------------------------
+RUN set -eux; \
+    test -f /opt/flink/lib/commons-cli-1.5.0.jar; \
+    find /opt/flink/lib -maxdepth 1 -type f \
+        -name 'commons-cli-*.jar' \
+        ! -name 'commons-cli-1.5.0.jar' \
+        -delete; \
+    test "$(find /opt/flink/lib -maxdepth 1 -name 'commons-cli-*.jar' | wc -l)" -eq 1; \
+    ls -l /opt/flink/lib/commons-cli-*.jar
 
 # ------------------------------------------------------------
 # Configure Azure Filesystem plugin
